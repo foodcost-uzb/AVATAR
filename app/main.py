@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 
+import httpx
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 from app.heygen_client import heygen
 from app.routes import account, avatars, videos, voices
@@ -24,6 +26,18 @@ app.include_router(account.router)
 app.include_router(avatars.router)
 app.include_router(voices.router)
 app.include_router(videos.router)
+
+
+@app.exception_handler(httpx.HTTPStatusError)
+async def heygen_error_handler(request, exc: httpx.HTTPStatusError):
+    try:
+        detail = exc.response.json()
+    except Exception:
+        detail = exc.response.text
+    return JSONResponse(
+        status_code=exc.response.status_code,
+        content={"error": "heygen_api_error", "detail": detail},
+    )
 
 
 @app.get("/health")

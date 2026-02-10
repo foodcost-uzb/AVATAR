@@ -43,6 +43,11 @@ class HeyGenClient:
         resp.raise_for_status()
         return resp.json()
 
+    async def get_avatar_details(self, avatar_id: str) -> dict:
+        resp = await self.client.get(f"{API_BASE}/v2/avatar/{avatar_id}/details")
+        resp.raise_for_status()
+        return resp.json()
+
     # ------ Voices ------
 
     async def list_voices(self) -> dict:
